@@ -1,0 +1,36 @@
+pprof:
+    enabled: 1
+prometheus:
+    enabled: 1
+one_image:
+    port: 9090
+    concurrency: 0
+    storage: gcs
+    time_out: 5s
+    ignore_ssl_verification: 1
+    free_mem_interval: 1s
+    log_mem_stats: 0
+    upload_buffer_size: 0
+    buffer_pool_calib_threshold: 1024
+    max_file_size: 10485760 #10MB
+image:
+    width: 1640
+    height: 1480
+    quality: 100
+    type: jpg
+    max_dimension: 10000
+    min_dimension: 240
+    max_resolution: 100000000
+    jpeg_progressive: 0
+    png_interlaced: 0
+    watermark_opacity: 1
+    max_gif_frames: 1
+storage:
+    gcs:
+        enabled: 1
+        bucket_prefix: chotot-photo-staging
+        base_url: https://cdn.chotot.org
+        prefix: plain
+        image_config: preset:view
+        thumb_config: preset:listing
+        format: jpg

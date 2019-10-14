@@ -1,0 +1,22 @@
+swagger: '2.0'
+info:
+    title: Iris Endpoint
+    description: Iris API on Cloud Endpoint with a Cloud Run backend
+    version: 1.0.0
+host: iris-endpoint-vt73i5crba-an.a.run.app
+schemes:
+    - https
+produces:
+    - application/json
+x-google-backend:
+    address: https://iris-fas-staging-vt73i5crba-an.a.run.app
+paths:
+    /health:
+        get:
+            summary: Health check
+            operationId: health
+            responses:
+                '200':
+                    description: A successful response
+                    schema:
+                        type: string

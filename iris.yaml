@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  generation: 1
+  labels:
+    app: iris
+    owner: badboyd
+    tier: backend
+  name: iris
+spec:
+  minReadySeconds: 30
+  progressDeadlineSeconds: 2147483647
+  replicas: 5
+  selector:
+    matchLabels:
+      app: iris
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "9090"
+        prometheus.io/scrape: "true"
+      creationTimestamp: null
+      labels:
+        app: iris
+        namespace: default
+    spec:
+      containers:
+      - env:
+        - name: ONE_IMAGE__CONCURRENCY
+          value: "200"
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/etc/iris/chotot-photo-gcs.json"
+        - name: IMGPROXY_PROMETHEUS_BIND
+          value: ":9000"
+        - name: LOG_LEVEL
+          value: INFO
+        - name: RUN_ENV
+          value: DEV
+        - name: STORAGE__GCS__BASE_URL
+          value: https://cdn.chotot.org
+        - name: ONEIMAGE__SALT_KEY
+          valueFrom:
+            secretKeyRef:
+              name: iris
+              key: salt
+        - name: ONEIMAGE__SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: iris
+              key: key
+        image: docker.chotot.org/iris:0.0.9
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: iris
+        ports:
+        - containerPort: 9090
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2Gi
+          requests:
+            cpu: "0.1"
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /etc/iris/
+          name: iris-volume
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: iris-volume
+        secret:
+          secretName: iris
